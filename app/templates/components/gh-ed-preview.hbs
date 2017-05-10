@@ -12,3 +12,18 @@
             formChanged=(action "updateHeight")}}
     {{/ember-wormhole}}
 {{/each}}
+
+{{#each smartLinkComponents as |smartLink|}}
+    {{#ember-wormhole to=smartLink.destinationElementId}}{{gh-ed-smart-link
+        url=smartLink.url
+        text=smartLink.text
+        edit=(action "toggleEditSmartlink" smartLink.index)}}{{/ember-wormhole}}
+{{/each}}
+
+{{#if showEditSmartLinkModal}}
+    {{gh-fullscreen-modal "upload-document"
+        model=(hash url=currentSmartLinkUrl text=currentSmartLinkText)
+        confirm=(action "saveSmartLink"currentSmartLinkIndex)
+        close=(action "toggleEditSmartlink")
+        modifier="action wide"}}
+{{/if}}

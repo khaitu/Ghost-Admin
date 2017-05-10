@@ -61,9 +61,9 @@ const FullScreenModalComponent = LiquidTether.extend({
             });
         },
 
-        confirm() {
+        confirm(...args) {
             if (this.get('confirm')) {
-                return invokeAction(this, 'confirm');
+                return invokeAction(this, 'confirm', ...args);
             }
 
             return new Promise((resolve) => {

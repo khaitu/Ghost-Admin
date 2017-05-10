@@ -12,10 +12,15 @@ export default Component.extend({
     _scrollWrapper: null,
 
     previewHTML: '',
+    showEditSmartLinkModal: false,
+    currentSmartLinkUrl: null,
+    currentSmartLinkText: null,
+    currentSmartLinkIndex: null,
 
     init() {
         this._super(...arguments);
         this.set('imageUploadComponents', emberA([]));
+        this.set('smartLinkComponents', emberA([]));
         this.buildPreviewHTML();
     },
 
@@ -65,16 +70,23 @@ export default Component.extend({
         }
 
         let dropzones = fragment.querySelectorAll('.js-drop-zone');
-        let components = this.get('imageUploadComponents');
+        let links = fragment.querySelectorAll('a');
+        let imageUploadComponents = this.get('imageUploadComponents');
+        let smartLinkComponents = this.get('smartLinkComponents');
 
-        if (dropzones.length !== components.length) {
-            components = emberA([]);
-            this.set('imageUploadComponents', components);
+        if (dropzones.length !== imageUploadComponents.length) {
+            imageUploadComponents = emberA([]);
+            this.set('imageUploadComponents', imageUploadComponents);
+        }
+
+        if (links.length !== smartLinkComponents) {
+            smartLinkComponents = emberA([]);
+            this.set('smartLinkComponents', smartLinkComponents);
         }
 
         [...dropzones].forEach((oldEl, i) => {
             let el = oldEl.cloneNode(true);
-            let component = components[i];
+            let component = imageUploadComponents[i];
             let uploadTarget = el.querySelector('.js-upload-target');
             let altTextWrapper = oldEl.querySelector('.js-drop-zone .description strong');
             let id = uuid();
@@ -112,12 +124,56 @@ export default Component.extend({
             oldEl.parentNode.replaceChild(el, oldEl);
         });
 
+        [...links].forEach((oldEl, i) => {
+            let el = document.createElement('span');
+            let component = smartLinkComponents[i];
+            let id = uuid();
+            let destinationElementId = `smart-link-${id}`;
+            let href = oldEl.getAttribute('href');
+            let text = oldEl.textContent;
+
+            if (component) {
+                component.set('destinationElementId', destinationElementId);
+                component.set('url', href);
+                component.set('text', text);
+            } else {
+                let smartLink = EmberObject.create({
+                    destinationElementId,
+                    id,
+                    url: href,
+                    text,
+                    index: i
+                });
+
+                this.get('smartLinkComponents').pushObject(smartLink);
+            }
+
+            el.id = destinationElementId;
+            el.className = 'smart-link';
+
+            oldEl.parentNode.replaceChild(el, oldEl);
+        });
+
         this.set('previewHTML', fragment);
     },
 
     actions: {
         updateImageSrc(index, url) {
             this.attrs.updateImageSrc(index, url);
+        },
+
+        saveSmartLink(index, url, text) {
+            this.attrs.updateLink(index, url, text);
+        },
+
+        toggleEditSmartlink(index) {
+            if (index !== undefined) {
+                this.set('currentSmartLinkIndex', index);
+                this.set('currentSmartLinkUrl', this.get('smartLinkComponents')[index].get('url'));
+                this.set('currentSmartLinkText', this.get('smartLinkComponents')[index].get('text'));
+            }
+
+            this.toggleProperty('showEditSmartLinkModal');
         },
 
         updateHeight() {

@@ -20,12 +20,11 @@ export default Component.extend({
     classNames: ['gh-image-uploader'],
     classNameBindings: ['dragClass'],
 
-    image: null,
-    text: '',
-    altText: '',
+    document: '',
+    title: '',
     saveButton: true,
-    accept: 'image/gif,image/jpg,image/jpeg,image/png,image/svg+xml',
-    extensions: ['gif', 'jpg', 'jpeg', 'png', 'svg'],
+    accept: 'application/pdf',
+    extensions: ['pdf'],
     validate: null,
 
     dragClass: null,
@@ -45,15 +44,15 @@ export default Component.extend({
         let file = this.get('file');
         let formData = new FormData();
 
-        formData.append('uploadimage', file);
+        formData.append('uploaddocument', file);
 
         return formData;
     }),
 
-    description: computed('text', 'altText', function () {
-        let altText = this.get('altText');
+    description: computed('formType', function () {
+        let formType = this.get('formType');
 
-        return this.get('text') || (altText ? `Upload image of "${altText}"` : 'Upload an image');
+        return formType === 'upload' ? 'Upload a document' : 'Link URL';
     }),
 
     progressStyle: computed('uploadPercentage', function () {
@@ -81,8 +80,8 @@ export default Component.extend({
     }),
 
     didReceiveAttrs() {
-        let image = this.get('image');
-        this.set('url', image);
+        let doc = this.get('document');
+        this.set('url', doc);
     },
 
     dragOver(event) {
@@ -144,11 +143,13 @@ export default Component.extend({
 
     _uploadFinished() {
         invokeAction(this, 'uploadFinished');
+
+        this.set('formType', 'url-input');
     },
 
     _uploadSuccess(response) {
         this.set('url', response);
-        this.send('saveUrl');
+        this.send('save');
         this.send('reset');
         invokeAction(this, 'uploadSuccess', response);
     },
@@ -161,9 +162,9 @@ export default Component.extend({
         }
 
         if (isUnsupportedMediaTypeError(error)) {
-            message = 'The image type you uploaded is not supported. Please use .PNG, .JPG, .GIF, .SVG.';
+            message = 'The document type you uploaded is not supported. Please use .PDF.';
         } else if (isRequestEntityTooLargeError(error)) {
-            message = 'The image you uploaded was larger than the maximum file size your server allows.';
+            message = 'The document you uploaded was larger than the maximum file size your server allows.';
         } else if (error.errors && !isBlank(error.errors[0].message)) {
             message = error.errors[0].message;
         } else {
@@ -177,7 +178,7 @@ export default Component.extend({
     generateRequest() {
         let ajax = this.get('ajax');
         let formData = this.get('formData');
-        let url = `${ghostPaths().apiRoot}/images/uploads/`;
+        let url = `${ghostPaths().apiRoot}/documents/uploads/`;
 
         this._uploadStarted();
 
@@ -249,9 +250,14 @@ export default Component.extend({
             }
         },
 
-        onInput(url) {
+        onUrlInput(url) {
             this.set('url', url);
-            invokeAction(this, 'onInput', url);
+            invokeAction(this, 'onUrlInput', url);
+        },
+
+        onTextInput(text) {
+            this.set('title', text);
+            invokeAction(this, 'onTextInput', text);
         },
 
         reset() {
@@ -267,9 +273,11 @@ export default Component.extend({
             });
         },
 
-        saveUrl() {
+        save() {
             let url = this.get('url');
-            invokeAction(this, 'update', url);
+            let title = this.get('title');
+
+            invokeAction(this, 'update', url, title);
         }
     }
 });

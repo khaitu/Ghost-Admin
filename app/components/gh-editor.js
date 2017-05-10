@@ -3,9 +3,10 @@ import computed, {equal} from 'ember-computed';
 import run from 'ember-runloop';
 
 import ShortcutsMixin from 'ghost-admin/mixins/shortcuts';
-import imageManager from 'ghost-admin/utils/ed-image-manager';
 import editorShortcuts from 'ghost-admin/utils/editor-shortcuts';
 import {invokeAction} from 'ember-invoke-action';
+import imageManager from 'ghost-admin/utils/ed-image-manager';
+import linkManager from 'ghost-admin/utils/ed-link-manager';
 
 export default Component.extend(ShortcutsMixin, {
     tagName: 'section',
@@ -112,6 +113,20 @@ export default Component.extend(ShortcutsMixin, {
                     newSrc = `(${newSrc})`;
                 }
                 editor.replaceSelection(newSrc, replacement.start, replacement.end, cursorPosition);
+            }
+        },
+
+        handleLinkEdit(linkIndex, newHref, newText) {
+            let editor = this.get('editor');
+            let editorValue = editor.getValue();
+            let replacement = linkManager.getSrcRange(editorValue, linkIndex);
+            let cursorPosition;
+
+            if (replacement) {
+                cursorPosition = replacement.href.start + newHref.length + 1;
+
+                editor.replaceSelection(newHref, replacement.href.start, replacement.href.end, cursorPosition);
+                editor.replaceSelection(newText, replacement.text.start, replacement.text.end, cursorPosition);
             }
         },
 

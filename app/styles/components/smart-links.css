@@ -1,0 +1,24 @@
+.gh-ed-smart-link {
+    position: relative;
+}
+
+.gh-ed-smart-link-edit {
+    position: absolute;
+    top: -16px;
+    right: -16px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: var(--border-radius);
+    box-shadow: rgba(255, 255, 255, 0.2) 0 0 0 1px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 10px;
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.gh-ed-smart-link:hover .gh-ed-smart-link-edit {
+    opacity: 1;
+}
