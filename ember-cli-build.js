@@ -119,6 +119,7 @@ module.exports = function (defaults) {
     app.import('bower_components/showdown-ghost/src/extensions/ghostimagepreview.js');
     app.import('bower_components/showdown-ghost/src/extensions/footnotes.js');
     app.import('bower_components/showdown-ghost/src/extensions/highlight.js');
+    app.import('bower_components/showdown-ghost/src/extensions/table.js');
     app.import('bower_components/keymaster/keymaster.js');
     app.import('bower_components/devicejs/lib/device.js');
 

@@ -3,7 +3,7 @@ import {helper} from 'ember-helper';
 import {htmlSafe} from 'ember-string';
 import cajaSanitizers from 'ghost-admin/utils/caja-sanitizers';
 
-let showdown = new Showdown.converter({extensions: ['ghostimagepreview', 'ghostgfm', 'footnotes', 'highlight']});
+let showdown = new Showdown.converter({extensions: ['ghostimagepreview', 'ghostgfm', 'footnotes', 'highlight', 'table']});
 
 export function formatMarkdown(params) {
     if (!params || !params.length) {
